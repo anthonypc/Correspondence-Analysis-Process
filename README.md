@@ -1,2 +1,2 @@
-# correspondenceAnalysisProcess
-Correspondence Analysis Process in R
+# Correspondence Analysis Process
+Correspondence Analysis and Multiple Correspondence Analysis Process in R.
