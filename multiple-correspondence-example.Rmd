@@ -1,0 +1,113 @@
+---
+title: "Multiple Correspondence Analysis"
+author: "Anthony Contoleon"
+date: "10 December 2016"
+output: github_document
+---
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## To load SPSS data
+library(foreign)
+
+## Analysis and display
+library(ggplot2)
+library(data.table)
+library(MASS)
+library(ca)
+library(FactoMineR)
+library(factoextra)
+
+## Loading the file
+wip <- poison
+
+## Select the appropriate columns.
+# Only the variables to be included in the following analysis.
+wipMCA.df <- wip[,c(4,5,6)]
+wipMCA.df <- na.omit(wipMCA.df)
+```
+
+# Multiple Correspondence Analysis
+##Process and output
+
+### Screen plot for dimensions
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Perform the MCA
+## References for process as follows:
+# http://www.sthda.com/english/wiki/multiple-correspondence-analysis-essentials-interpretation-and-application-to-investigate-the-associations-between-categories-of-multiple-qualitative-variables-r-software-and-data-mining#visualize-supplementary-variables
+# http://factominer.free.fr/classical-methods/multiple-correspondence-analysis.html
+survey.mca <- MCA(wipMCA.df, graph = FALSE, ncp = 3)
+
+## Screen plot for dimensions
+fviz_screeplot(survey.mca)
+```
+
+###Symetric Plots
+
+Plots of variables.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Plots for distribution of points by dimensions
+## As per SPSS output
+plot.MCA(survey.mca, invisible=c("ind","quali.sup"), axes = c(1,2))
+
+par(mfrow=c(2,2))
+plot.MCA(survey.mca, invisible=c("ind","quali.sup"), axes = c(1,2))
+plot.MCA(survey.mca, invisible=c("ind","quali.sup"), axes = c(1,3))
+plot.MCA(survey.mca, invisible=c("ind","quali.sup"), axes = c(2,3))
+```
+
+Plots of observations.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+plot.MCA(survey.mca, invisible=c("var","quali.sup"), axes = c(1,2))
+
+par(mfrow=c(2,2))
+plot.MCA(survey.mca, invisible=c("var","quali.sup"), axes = c(1,2))
+plot.MCA(survey.mca, invisible=c("var","quali.sup"), axes = c(1,3))
+plot.MCA(survey.mca, invisible=c("var","quali.sup"), axes = c(2,3))
+```
+
+###Discriminant Measures
+
+Contributions by variables to dimensions.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+survey.mca$var$eta2
+```
+
+###Eigen Values per Dimension
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Information on the model
+# Eigenvalues Variance is the inertia measure per dimensions.
+# Categorical variables (eta2) contains Discrimination Measures
+get_eig(survey.mca)
+```
+
+###Contribution Per Value
+
+Contributions by variable values to dimensions.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Contribution figures for effect per row/col
+# Displayed as percent
+survey.mca$var$contrib
+```
+
+###Full Model Summary
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Information on the model
+# Eigenvalues Variance is the inertia measure per dimensions.
+# Categorical variables (eta2) contains Discrimination Measures
+summary(survey.mca, ncp = 3)
+```
+
+###Contribution Per Observation
+
+Contributions by observation to dimensions.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+survey.mca$ind$contrib
+```

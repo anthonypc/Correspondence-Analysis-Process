@@ -1,0 +1,110 @@
+---
+title: "Correspondence Analysis"
+author: "Anthony Contoleon"
+date: "10 December 2016"
+output: github_document
+---
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Analysis and display
+library(ggplot2)
+library(data.table)
+library(MASS)
+library(ca)
+library(FactoMineR)
+
+## Load the data.
+wip = as.data.frame(HairEyeColor)
+wip.dt <- data.table::dcast(wip, Hair ~ Eye, fun.aggregate = sum, value.var = "Freq")
+rownames(wip.dt) <- wip.dt$Hair
+```
+
+#Correspondence Analysis
+##Process and output
+
+Producing a workflow in R to match most of the relevant output produced by SPSS.
+
+##Model Statistics
+
+Initial check for relationships between the variables analysised for this model.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## setting values for fit
+chisq <- chisq.test(wip.dt[,c(2:3)])
+n <- sum(wip$Freq)
+
+# Printing the chi square statistic.
+# Testing the significance of the relationship.
+# Not always reliable.
+chisq
+
+```
+
+###Table of Frequencies.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Table of frequencies.
+wip.dt[,c(2:3)]
+```
+
+###Table of Residuals
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Table of residuals.
+chisq$residuals
+```
+
+###Table of Adjusted Residuals
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Table of adjusted residuals.
+chisq$stdres
+```
+
+##Correspondence Analysis Output and Plots
+
+###Total Inertia Value
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Total inertia value
+chisq$statistic/n
+```
+
+###Symetric Plot
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Principal intertias table/contingency table
+test.ca <- ca(wip.dt[,c(2:5)], nd=2)
+test.cac <- CA(wip.dt[,c(2:5)], ncp = 2, graph = FALSE)
+
+## Display the biplot.
+plot.CA(test.cac)
+```
+
+###Model Sumary 
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+## Summary statistics. Dimension contribution figures are not actual percent. Use figures produced later.
+summary(test.cac)
+```
+
+
+###Row and Column Inerita and Mass
+
+Summaries for row and column mass and interia values and percentage constribution to each dimension by each value.
+
+```{r, echo=FALSE,message=FALSE,warning=FALSE}
+rows <- data.frame(as.vector(test.ca$rownames),as.vector(test.ca$rowinertia), as.vector(test.ca$rowmass))
+colnames(rows) <- c("Row Group", "Inertia", "Mass")
+cols <- data.frame(as.vector(test.ca$colnames), as.vector(test.ca$colinertia), as.vector(test.ca$colmass))
+colnames(cols) <- c("Col Group", "Inertia", "Mass")
+
+## Row and COlumn Summaries
+rowTable.df <- cbind(rows, test.cac$row$contrib)
+colTable.df <- cbind(cols, test.cac$col$contrib)
+
+# Display output.
+rowTable.df
+colTable.df
+
+```
